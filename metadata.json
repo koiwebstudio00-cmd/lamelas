@@ -1,0 +1,6 @@
+{
+  "name": "Lamelas y Chaumont",
+  "description": "Real Estate Agency Website - Tucuman, Yerba Buena, Salta",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
