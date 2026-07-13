@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, Facebook, Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -9,19 +9,21 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           
           <div className="space-y-6">
-            <img src="https://i.postimg.cc/9XxsYRKG/image-removebg-preview-(4).png" alt="Lamelas y Chaumont" className="h-12 object-contain bg-white p-2 rounded-md" />
+            <div className="flex items-center gap-3">
+              <span className="flex items-center justify-center h-10 w-10 rounded-lg bg-white">
+                <img src="/logo.webp" alt="" width={447} height={447} className="h-7 w-7 object-contain" />
+              </span>
+              <span className="font-display leading-none text-white">
+                <span className="block text-[15px] font-bold tracking-wide">LAMELAS &amp; CHAUMONT</span>
+                <span className="block text-[11px] font-medium tracking-[0.2em] mt-1 text-brand-primary">INMOBILIARIA</span>
+              </span>
+            </div>
             <p className="text-sm leading-relaxed text-gray-400">
               Acompañándote en cada decisión importante. Transparencia, atención personalizada y conocimiento del mercado.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand-primary hover:text-white transition-colors">
-                <Instagram size={20} />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand-primary hover:text-white transition-colors">
-                <Facebook size={20} />
-              </a>
-              <a href="mailto:contacto@lamelasychaumont.com" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand-primary hover:text-white transition-colors">
-                <Mail size={20} />
+              <a href="mailto:contacto@lamelasychaumont.com" aria-label="Enviar email" className="w-11 h-11 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand-primary hover:text-white transition-colors">
+                <Mail size={20} aria-hidden="true" />
               </a>
             </div>
           </div>
@@ -33,7 +35,6 @@ export default function Footer() {
               <li><Link to="/propiedades" className="hover:text-brand-primary transition-colors">Propiedades</Link></li>
               <li><Link to="/propiedades?op=venta" className="hover:text-brand-primary transition-colors">Venta</Link></li>
               <li><Link to="/propiedades?op=alquiler" className="hover:text-brand-primary transition-colors">Alquiler</Link></li>
-              <li><a href="/#tasaciones" className="hover:text-brand-primary transition-colors">Tasaciones</a></li>
               <li><a href="/#nosotros" className="hover:text-brand-primary transition-colors">Nosotros</a></li>
               <li><a href="/#contacto" className="hover:text-brand-primary transition-colors">Contacto</a></li>
             </ul>
@@ -42,11 +43,10 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-bold mb-6 text-lg">Tipos de Propiedades</h4>
             <ul className="space-y-3">
-              <li><Link to="/propiedades?tipo=casas" className="hover:text-brand-primary transition-colors">Casas</Link></li>
-              <li><Link to="/propiedades?tipo=departamentos" className="hover:text-brand-primary transition-colors">Departamentos</Link></li>
-              <li><Link to="/propiedades?tipo=terrenos" className="hover:text-brand-primary transition-colors">Terrenos</Link></li>
-              <li><Link to="/propiedades?tipo=oficinas" className="hover:text-brand-primary transition-colors">Oficinas</Link></li>
-              <li><Link to="/propiedades?tipo=locales" className="hover:text-brand-primary transition-colors">Locales Comerciales</Link></li>
+              <li><Link to="/propiedades?tipo=casa" className="hover:text-brand-primary transition-colors">Casas</Link></li>
+              <li><Link to="/propiedades?tipo=departamento" className="hover:text-brand-primary transition-colors">Departamentos</Link></li>
+              <li><Link to="/propiedades?tipo=terreno" className="hover:text-brand-primary transition-colors">Terrenos</Link></li>
+              <li><Link to="/propiedades?tipo=local" className="hover:text-brand-primary transition-colors">Locales Comerciales</Link></li>
             </ul>
           </div>
 

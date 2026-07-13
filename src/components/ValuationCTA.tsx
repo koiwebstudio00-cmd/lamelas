@@ -16,7 +16,7 @@ export default function ValuationCTA() {
             ¿Querés saber cuánto vale tu propiedad?
           </h2>
           <p className="text-lg text-gray-200 mb-10 font-light">
-            Completá el formulario de tasación y nuestro equipo se comunica con vos para asesorarte con profesionalismo y conocimiento del mercado.
+            Contanos sobre tu propiedad y nuestro equipo se comunica con vos para asesorarte con profesionalismo y conocimiento del mercado.
           </p>
           <a 
             href="#contacto"

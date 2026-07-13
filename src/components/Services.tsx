@@ -4,13 +4,13 @@ import { motion } from 'motion/react';
 
 export default function Services() {
   const services = [
-    { icon: <Home size={32} />, title: 'Compra de propiedades' },
-    { icon: <Key size={32} />, title: 'Venta de propiedades' },
-    { icon: <Building size={32} />, title: 'Alquileres' },
-    { icon: <Calculator size={32} />, title: 'Tasaciones' },
-    { icon: <Briefcase size={32} />, title: 'Administración' },
-    { icon: <Compass size={32} />, title: 'Asesoramiento inmobiliario' },
-    { icon: <Map size={32} />, title: 'Propiedades en Salta' },
+    { icon: <Home size={32} />, title: 'Compra de propiedades', description: 'Te acompañamos desde la búsqueda hasta la escritura.' },
+    { icon: <Key size={32} />, title: 'Venta de propiedades', description: 'Publicamos, mostramos y negociamos por vos.' },
+    { icon: <Building size={32} />, title: 'Alquileres', description: 'Contratos claros para propietarios e inquilinos.' },
+    { icon: <Calculator size={32} />, title: 'Tasaciones', description: 'Valor real de mercado, sin compromiso.' },
+    { icon: <Briefcase size={32} />, title: 'Administración', description: 'Tu propiedad rentando, sin ocuparte de nada.' },
+    { icon: <Compass size={32} />, title: 'Asesoramiento inmobiliario', description: 'Resolvemos tus dudas antes de decidir.' },
+    { icon: <Map size={32} />, title: 'Propiedades en Salta', description: 'Oportunidades seleccionadas fuera de Tucumán.' },
   ];
 
   const containerVariants = {
@@ -58,7 +58,8 @@ export default function Services() {
               <div className="text-brand-primary mb-4 p-4 bg-brand-light rounded-full group-hover:bg-brand-primary group-hover:text-white transition-colors duration-300">
                 {service.icon}
               </div>
-              <h3 className="text-lg font-bold text-gray-900">{service.title}</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">{service.title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{service.description}</p>
             </motion.div>
           ))}
 

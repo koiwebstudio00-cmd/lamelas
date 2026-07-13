@@ -1,19 +1,59 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  
+  --font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+
   /* Brand Colors */
   --color-brand-primary: #16A34A; /* Primary green */
   --color-brand-dark: #166534; /* Dark green */
   --color-brand-light: #DCFCE7; /* Soft green background */
-  
+
   /* Neutral Colors */
   --color-brand-neutral-light: #F8FAFC;
   --color-brand-text: #111827;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   @apply font-sans text-brand-text bg-white antialiased;
+}
+
+/* Tipografía display para títulos: geométrica, en línea con el isotipo */
+h1, h2, h3 {
+  @apply font-display;
+  letter-spacing: -0.01em;
+}
+
+/* Foco visible consistente en todo el sitio */
+:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--color-brand-light);
+  color: var(--color-brand-dark);
+}
+
+button, [role="button"], select {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Respetar preferencia de menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

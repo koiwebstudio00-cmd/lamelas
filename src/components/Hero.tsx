@@ -1,119 +1,189 @@
 import React, { useEffect, useState } from 'react';
-import { Search } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Search, MapPin, Building2, MessageCircle } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
+import { TIPOS, TIPO_LABELS } from '../types';
+
+const operations = [
+  { value: '', label: 'Todas' },
+  { value: 'venta', label: 'Venta' },
+  { value: 'alquiler', label: 'Alquiler' },
+];
+
+const quickLinks = [
+  { label: 'Casas en venta', to: '/propiedades?op=venta&tipo=casa' },
+  { label: 'Departamentos en alquiler', to: '/propiedades?op=alquiler&tipo=departamento' },
+  { label: 'Terrenos', to: '/propiedades?tipo=terreno' },
+  { label: 'Locales', to: '/propiedades?tipo=local' },
+];
 
 export default function Hero() {
   const navigate = useNavigate();
   const [offsetY, setOffsetY] = useState(0);
+  const [search, setSearch] = useState({ op: '', tipo: '' });
 
   useEffect(() => {
-    const handleScroll = () => {
-      setOffsetY(window.scrollY);
-    };
-    window.addEventListener('scroll', handleScroll);
+    // Parallax solo si el usuario no pidió menos movimiento
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const handleScroll = () => setOffsetY(window.scrollY);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate('/propiedades');
+    const params = new URLSearchParams();
+    if (search.op) params.set('op', search.op);
+    if (search.tipo) params.set('tipo', search.tipo);
+    navigate(`/propiedades${params.toString() ? `?${params}` : ''}`);
   };
 
   return (
-    <section className="relative min-h-[100dvh] lg:min-h-[700px] flex items-center justify-center overflow-hidden py-12">
-      {/* Background Image with Overlay */}
+    <section className="relative min-h-[90dvh] flex items-center justify-center overflow-hidden">
+      {/* Fondo con parallax + gradiente (más oscuro abajo, deja respirar la foto) */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <div 
-          className="absolute top-[-30%] left-0 w-full h-[160%] bg-cover bg-center bg-no-repeat"
-          style={{ 
-            backgroundImage: 'url(https://i.postimg.cc/y6P7485C/Chat-GPT-Image-7-jul-2026-08-30-18-p-m.png)',
+        <div
+          className="absolute top-[-30%] left-0 w-full h-[160%] bg-cover bg-top bg-no-repeat"
+          style={{
+            backgroundImage: 'url(/hero.webp)',
             transform: `translateY(${offsetY * 0.4}px)`
           }}
         ></div>
-        <div className="absolute inset-0 bg-black/60"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/35 to-black/75"></div>
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 text-center mt-8 md:mt-16 flex flex-col items-center justify-center w-full">
-        <motion.h1 
+      <div className="relative z-10 container mx-auto px-4 text-center pt-24 pb-16 flex flex-col items-center justify-center w-full">
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="text-brand-light/90 font-semibold tracking-[0.25em] uppercase text-xs md:text-sm mb-5"
+        >
+          Lamelas &amp; Chaumont
+        </motion.p>
+
+        <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight"
+          className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight text-balance max-w-4xl"
         >
-          Encontrá tu próxima propiedad
+          Tu próxima propiedad en{' '}
+          <span className="relative whitespace-nowrap">
+            <span className="relative z-10">Tucumán y Salta</span>
+            <span className="absolute left-0 right-0 bottom-1 md:bottom-2 h-3 md:h-4 bg-brand-primary/60 -rotate-1 rounded-sm" aria-hidden="true"></span>
+          </span>
         </motion.h1>
-        <motion.p 
+
+        <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="hidden md:block text-lg md:text-xl text-gray-200 mb-10 max-w-3xl mx-auto font-light"
+          transition={{ duration: 0.8, delay: 0.35 }}
+          className="text-base md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto font-light text-pretty"
         >
-          Casas, departamentos, terrenos, locales y oportunidades seleccionadas en Tucumán, Yerba Buena, Salta y alrededores.
+          Casas, departamentos, terrenos y locales seleccionados en San Miguel de Tucumán, Yerba Buena y Salta.
         </motion.p>
 
-        {/* Search Module */}
-        <motion.div 
+        {/* Buscador: un gesto por decisión — tabs de operación, tipo y buscar */}
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="bg-brand-dark/40 backdrop-blur-md border border-white/20 p-4 md:p-6 rounded-xl shadow-2xl w-full max-w-5xl mx-auto"
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="w-full max-w-3xl mx-auto"
         >
-          <form onSubmit={handleSearch} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
-            
-            <div className="flex flex-col text-left col-span-1">
-              <label className="text-xs font-semibold text-white/90 mb-1 uppercase tracking-wider">Operación</label>
-              <select className="p-2.5 bg-white border border-transparent rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 shadow-sm">
-                <option value="">Todas</option>
-                <option value="venta">Venta</option>
-                <option value="alquiler">Alquiler</option>
+          <form
+            onSubmit={handleSearch}
+            className="bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-2xl ring-1 ring-black/5 flex flex-col md:flex-row items-stretch gap-3"
+          >
+            {/* Operación como control segmentado */}
+            <div role="group" aria-label="Operación" className="flex shrink-0 gap-1 bg-gray-100 p-1 rounded-lg">
+              {operations.map((op) => (
+                <button
+                  key={op.value}
+                  type="button"
+                  onClick={() => setSearch(s => ({ ...s, op: op.value }))}
+                  aria-pressed={search.op === op.value}
+                  className={`flex-1 md:flex-none px-4 min-h-[42px] rounded-md text-sm font-semibold transition-all ${
+                    search.op === op.value
+                      ? 'bg-white text-brand-dark shadow-sm'
+                      : 'text-gray-500 hover:text-gray-800'
+                  }`}
+                >
+                  {op.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <label htmlFor="hero-tipo" className="sr-only">Tipo de propiedad</label>
+              <select
+                id="hero-tipo"
+                value={search.tipo}
+                onChange={(e) => setSearch(s => ({ ...s, tipo: e.target.value }))}
+                className="w-full h-full p-3 min-h-[48px] bg-gray-50 border border-gray-200 rounded-lg md:px-5 text-gray-900 focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/30 transition-colors"
+              >
+                <option value="">Todos los tipos de propiedad</option>
+                {TIPOS.map(tipo => (
+                  <option key={tipo} value={tipo}>{TIPO_LABELS[tipo]}</option>
+                ))}
               </select>
             </div>
 
-            <div className="flex flex-col text-left col-span-1">
-              <label className="text-xs font-semibold text-white/90 mb-1 uppercase tracking-wider">Tipo</label>
-              <select className="p-2.5 bg-white border border-transparent rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 shadow-sm">
-                <option value="">Cualquiera</option>
-                <option value="casas">Casas</option>
-                <option value="departamentos">Departamentos</option>
-                <option value="terrenos">Terrenos</option>
-                <option value="locales">Locales</option>
-              </select>
-            </div>
-
-            <div className="flex flex-col text-left col-span-2 md:col-span-1 lg:col-span-1">
-              <label className="text-xs font-semibold text-white/90 mb-1 uppercase tracking-wider">Ubicación</label>
-              <input type="text" placeholder="Ej: Yerba Buena" className="p-2.5 bg-white border border-transparent rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 shadow-sm" />
-            </div>
-
-            <div className="flex flex-col text-left col-span-1">
-              <label className="text-xs font-semibold text-white/90 mb-1 uppercase tracking-wider">Precio Mín.</label>
-              <input type="number" placeholder="0" className="p-2.5 bg-white border border-transparent rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 shadow-sm" />
-            </div>
-
-            <div className="flex flex-col text-left col-span-1">
-              <label className="text-xs font-semibold text-white/90 mb-1 uppercase tracking-wider">Precio Máx.</label>
-              <input type="number" placeholder="Sin límite" className="p-2.5 bg-white border border-transparent rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 shadow-sm" />
-            </div>
-
-            <div className="flex flex-col justify-end col-span-2 md:col-span-1 lg:col-span-1">
-              <button type="submit" className="w-full bg-brand-primary text-white p-2.5 rounded-md font-bold hover:bg-brand-primary/90 transition-colors flex items-center justify-center gap-2 h-[46px] shadow-sm">
-                <Search size={18} />
-                <span>Buscar</span>
-              </button>
-            </div>
-            
+            <button
+              type="submit"
+              className="shrink-0 bg-brand-primary text-white px-8 min-h-[48px] rounded-lg font-bold hover:bg-brand-dark transition-colors flex items-center justify-center gap-2 shadow-md shadow-brand-primary/25"
+            >
+              <Search size={18} aria-hidden="true" />
+              <span>Buscar</span>
+            </button>
           </form>
+
+          {/* Búsquedas frecuentes: al listado ya filtrado, sin tocar el form */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            {quickLinks.map((link) => (
+              <Link
+                key={link.label}
+                to={link.to}
+                className="text-sm text-white/85 border border-white/25 px-4 py-1.5 rounded-full hover:bg-white/10 hover:border-white/50 hover:text-white transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
         </motion.div>
 
-        <motion.div 
+        {/* Prueba de cercanía: datos reales, sin promesas infladas */}
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
+          transition={{ duration: 0.8, delay: 0.7 }}
+          className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-white/80"
+        >
+          <span className="flex items-center gap-2">
+            <Building2 size={15} aria-hidden="true" className="text-brand-light" />
+            Desde 2020 en el mercado
+          </span>
+          <span className="flex items-center gap-2">
+            <MapPin size={15} aria-hidden="true" className="text-brand-light" />
+            Sucursales en SMT y Yerba Buena
+          </span>
+          <span className="flex items-center gap-2">
+            <MessageCircle size={15} aria-hidden="true" className="text-brand-light" />
+            Respuesta directa por WhatsApp
+          </span>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.85 }}
           className="mt-8"
         >
-          <a href="#tasaciones" className="text-white hover:text-brand-light font-medium underline underline-offset-4 transition-colors">
-            Solicitar tasación
+          <a
+            href="#contacto"
+            className="inline-flex items-center gap-2 border border-white/40 text-white font-medium px-6 py-2.5 rounded-full hover:bg-white/10 hover:border-white/70 transition-colors"
+          >
+            ¿Vendés? Solicitá una tasación
           </a>
         </motion.div>
       </div>

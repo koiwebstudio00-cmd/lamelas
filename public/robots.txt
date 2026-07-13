@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Ajustar al dominio definitivo antes de publicar
+Sitemap: https://lamelasychaumont.com/sitemap.xml

@@ -1,5 +1,6 @@
 import React from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 
 export default function About() {
@@ -24,7 +25,8 @@ export default function About() {
             <div className="relative aspect-[4/5] md:aspect-video lg:aspect-square rounded-2xl overflow-hidden shadow-2xl">
               <img 
                 src="https://i.postimg.cc/sDmPh7LR/Chat-GPT-Image-7-jul-2026-08-45-49-p-m.png" 
-                alt="Equipo Lamelas y Chaumont" 
+                alt="Equipo Lamelas y Chaumont"
+                loading="lazy"
                 className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-tr from-brand-primary/20 to-transparent"></div>
@@ -39,7 +41,7 @@ export default function About() {
             className="w-full lg:w-1/2"
           >
             <span className="text-brand-primary font-semibold tracking-wider uppercase text-sm mb-2 block">Nuestra Historia</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Sobre Lamelas y Chaumont</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Dos socios, un mismo compromiso</h2>
             
             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
               Somos Marcos Chaumont y Pablo Lamelas, dos amigos que desde 2020 construimos un espacio pensado para acompañarte en una de las decisiones más importantes: encontrar, vender o alquilar una propiedad. En Lamelas y Chaumont trabajamos con atención personalizada, transparencia y compromiso en cada operación.
@@ -64,9 +66,24 @@ export default function About() {
             </div>
 
             <div className="mt-10 pt-10 border-t border-gray-100">
-              <p className="text-sm text-gray-500 italic">
-                "Nuestra prioridad es que sientas respaldo y tranquilidad en cada paso."
+              <p className="text-sm text-gray-500 italic mb-8">
+                “Nuestra prioridad es que sientas respaldo y tranquilidad en cada paso.”
               </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <a
+                  href="#contacto"
+                  className="inline-flex items-center justify-center gap-2 bg-brand-primary text-white font-semibold px-7 py-3.5 rounded-lg hover:bg-brand-dark transition-colors shadow-md shadow-brand-primary/20"
+                >
+                  Hablemos de tu propiedad
+                  <ArrowRight size={17} aria-hidden="true" />
+                </a>
+                <Link
+                  to="/propiedades"
+                  className="inline-flex items-center justify-center gap-2 border border-gray-200 text-gray-800 font-semibold px-7 py-3.5 rounded-lg hover:border-brand-primary hover:text-brand-primary transition-colors"
+                >
+                  Ver propiedades
+                </Link>
+              </div>
             </div>
           </motion.div>
 

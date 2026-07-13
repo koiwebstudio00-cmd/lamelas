@@ -1,13 +1,66 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <meta name="theme-color" content="#16A34A" />
+    <link rel="icon" type="image/svg+xml" href="/logo.webp" />
+
+    <!-- SEO base (las páginas actualizan title/description/og por ruta) -->
+    <title>Inmobiliaria en Tucumán y Yerba Buena | Lamelas y Chaumont</title>
+    <meta
+      name="description"
+      content="Casas, departamentos, terrenos y locales en venta y alquiler en Tucumán, Yerba Buena y Salta. Tasaciones y asesoramiento inmobiliario con atención personalizada."
+    />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Lamelas y Chaumont" />
+    <meta property="og:title" content="Inmobiliaria en Tucumán y Yerba Buena | Lamelas y Chaumont" />
+    <meta
+      property="og:description"
+      content="Casas, departamentos, terrenos y locales en venta y alquiler en Tucumán, Yerba Buena y Salta."
+    />
+    <meta property="og:image" content="/hero.webp" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Performance: precarga del hero (LCP) y preconnect a orígenes críticos -->
+    <link rel="preload" as="image" href="/hero.webp" fetchpriority="high" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://gnpohmwaulxpvkqzxall.supabase.co" />
+
+    <!-- Datos estructurados: agencia con sus dos sucursales -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "RealEstateAgent",
+      "name": "Lamelas y Chaumont",
+      "description": "Inmobiliaria en Tucumán: venta, alquiler, tasaciones y administración de propiedades.",
+      "email": "contacto@lamelasychaumont.com",
+      "areaServed": ["San Miguel de Tucumán", "Yerba Buena", "Salta"],
+      "telephone": "+54-381-2310357",
+      "address": [
+        {
+          "@type": "PostalAddress",
+          "streetAddress": "Junín 615, 1A",
+          "addressLocality": "San Miguel de Tucumán",
+          "addressRegion": "Tucumán",
+          "addressCountry": "AR"
+        },
+        {
+          "@type": "PostalAddress",
+          "streetAddress": "Av. Solano Vera esquina Mendoza",
+          "addressLocality": "Yerba Buena",
+          "addressRegion": "Tucumán",
+          "addressCountry": "AR"
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
