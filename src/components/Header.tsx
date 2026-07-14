@@ -35,6 +35,8 @@ export default function Header() {
   // Cerrar con Escape y con click/tap fuera del menú
   useEffect(() => {
     if (!isMenuOpen) return;
+    // Lock body scroll when menu is open
+    document.body.style.overflow = 'hidden';
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setIsMenuOpen(false);
     };
@@ -46,6 +48,7 @@ export default function Header() {
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('pointerdown', onPointerDown);
     return () => {
+      document.body.style.overflow = '';
       document.removeEventListener('keydown', onKeyDown);
       document.removeEventListener('pointerdown', onPointerDown);
     };
@@ -68,6 +71,9 @@ export default function Header() {
           ? 'bg-transparent border-b border-white/10'
           : 'bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-200/60'
       }`}
+      style={{
+        paddingTop: 'env(safe-area-inset-top, 0px)'
+      }}
     >
       <div className="container mx-auto px-4 flex items-center justify-between h-16 md:h-[72px]">
         <Link to="/" aria-label="Lamelas y Chaumont — Inicio" className="flex items-center gap-3">
@@ -138,7 +144,11 @@ export default function Header() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
-            className="lg:hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-lg py-4 px-4 flex flex-col gap-1"
+            className="lg:hidden fixed left-0 w-full bg-white overflow-y-auto py-4 px-4 flex flex-col gap-1"
+            style={{
+              top: 'calc(4rem + env(safe-area-inset-top, 0px))',
+              height: 'calc(100dvh - 4rem - env(safe-area-inset-top, 0px))'
+            }}
           >
             {navLinks.map((link) => (
               <NavLink

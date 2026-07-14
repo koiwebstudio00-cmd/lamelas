@@ -42,22 +42,31 @@ export default function Hero() {
     <section className="relative min-h-[90dvh] flex items-center justify-center overflow-hidden">
       {/* Fondo con parallax + gradiente (más oscuro abajo, deja respirar la foto) */}
       <div className="absolute inset-0 z-0 overflow-hidden">
+        {/* Mobile: imagen vertical */}
         <div
-          className="absolute top-[-30%] left-0 w-full h-[160%] bg-cover bg-top bg-no-repeat"
+          className="absolute top-[-30%] left-0 w-full h-[160%] bg-cover bg-center bg-no-repeat md:hidden"
           style={{
-            backgroundImage: 'url(/hero.webp)',
+            backgroundImage: 'url(/images/hero-mobile.png)',
+            transform: `translateY(${offsetY * 0.4}px)`
+          }}
+        ></div>
+        {/* Desktop / tablet: imagen horizontal */}
+        <div
+          className="absolute top-[-30%] left-0 w-full h-[160%] bg-cover bg-center bg-no-repeat hidden md:block"
+          style={{
+            backgroundImage: 'url(/images/hero-destkop.png)',
             transform: `translateY(${offsetY * 0.4}px)`
           }}
         ></div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/35 to-black/75"></div>
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 text-center pt-24 pb-16 flex flex-col items-center justify-center w-full">
+      <div className="relative z-10 container mx-auto px-4 text-center pt-20 pb-12 md:pt-24 md:pb-16 flex flex-col items-center justify-center w-full">
         <motion.p
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-brand-light/90 font-semibold tracking-[0.25em] uppercase text-xs md:text-sm mb-5"
+          className="text-brand-light/90 font-semibold tracking-[0.25em] uppercase text-[10px] md:text-sm mb-3 md:mb-5"
         >
           Lamelas &amp; Chaumont
         </motion.p>
@@ -66,12 +75,12 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight text-balance max-w-4xl"
+          className="text-3xl md:text-6xl lg:text-7xl font-bold text-white mb-4 md:mb-6 tracking-tight text-balance max-w-4xl px-2"
         >
           Tu próxima propiedad en{' '}
           <span className="relative whitespace-nowrap">
             <span className="relative z-10">Tucumán y Salta</span>
-            <span className="absolute left-0 right-0 bottom-1 md:bottom-2 h-3 md:h-4 bg-brand-primary/60 -rotate-1 rounded-sm" aria-hidden="true"></span>
+            <span className="absolute left-0 right-0 bottom-1 md:bottom-2 h-2.5 md:h-4 bg-brand-primary/60 -rotate-1 rounded-sm" aria-hidden="true"></span>
           </span>
         </motion.h1>
 
@@ -79,7 +88,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.35 }}
-          className="text-base md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto font-light text-pretty"
+          className="hidden md:block text-base md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto font-light text-pretty"
         >
           Casas, departamentos, terrenos y locales seleccionados en San Miguel de Tucumán, Yerba Buena y Salta.
         </motion.p>
@@ -89,7 +98,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="w-full max-w-3xl mx-auto"
+          className="w-full max-w-3xl mx-auto mt-2 md:mt-0"
         >
           <form
             onSubmit={handleSearch}
@@ -138,8 +147,21 @@ export default function Hero() {
             </button>
           </form>
 
+          {/* Tasación por WhatsApp */}
+          <div className="mt-4 flex items-center justify-center">
+            <a
+              href="https://wa.me/543812310357?text=Hola!%20Quiero%20solicitar%20una%20tasacion%20de%20mi%20propiedad"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-xs md:text-sm text-white/90 hover:text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm transition-all border border-white/10"
+            >
+              <MessageCircle size={15} aria-hidden="true" className="text-brand-light" />
+              <span>¿Querés vender? <strong>Tasación por WhatsApp</strong></span>
+            </a>
+          </div>
+
           {/* Búsquedas frecuentes: al listado ya filtrado, sin tocar el form */}
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+          <div className="mt-4 hidden md:flex flex-wrap items-center justify-center gap-2">
             {quickLinks.map((link) => (
               <Link
                 key={link.label}
@@ -157,7 +179,7 @@ export default function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.7 }}
-          className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-white/80"
+          className="mt-8 hidden md:flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-white/80"
         >
           <span className="flex items-center gap-2">
             <Building2 size={15} aria-hidden="true" className="text-brand-light" />
@@ -177,7 +199,7 @@ export default function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.85 }}
-          className="mt-8"
+          className="mt-6 md:mt-8 hidden md:block"
         >
           <a
             href="#contacto"
