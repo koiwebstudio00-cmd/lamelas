@@ -1,5 +1,6 @@
-// Modelo real — refleja el schema de Supabase del repo hermano `lamelas`
-// (columnas en español, ver ../lamelas/supabase/migrations/0001_init.sql).
+// Modelo público del sitio. Refleja lo que expone /v1/export del backend
+// propio (back-lamelas), traducido a snake_case por src/lib/properties.ts:
+// los componentes no conocen el formato de la API.
 // Solo titulo, operacion, tipo y precio son obligatorios: el resto puede ser null.
 
 export type Operacion = 'venta' | 'alquiler';
@@ -8,14 +9,14 @@ export type Moneda = 'ARS' | 'USD';
 
 export interface PropertyImage {
   id: string;
-  url: string; // path dentro del bucket property-images: {property_id}/{uuid}.webp
+  url: string; // URL absoluta ya resuelta por la API (R2 o el bucket heredado)
   es_portada: boolean;
   orden: number;
 }
 
 export interface Property {
   id: string;
-  /** Identificador público para URLs: {operacion}-{tipo}-{precio}-{moneda}-{id_corto} */
+  /** Identificador público para URLs: {operacion}-{titulo}-{id_corto} */
   slug: string;
   titulo: string;
   operacion: Operacion;

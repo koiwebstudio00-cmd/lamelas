@@ -4,9 +4,9 @@ Guía para agentes de código (Cursor, Codex, Copilot, etc.) trabajando en este 
 
 ## Qué es este proyecto
 
-Sitio **público** de Inmobiliaria Lamelas: catálogo de propiedades disponibles, de **solo lectura**. Nació como prototipo de AI Studio con datos mock (`src/data/mockProperties.ts`); el objetivo actual es conectarlo al backend real (Supabase) del proyecto interno hermano `lamelas` (repo `../lamelas`), donde los vendedores cargan las propiedades.
+Sitio **público** de Inmobiliaria Lamelas: catálogo de propiedades disponibles, de **solo lectura**. Consume el backend propio `back-lamelas` (repo `../back-lamelas`) a través de su módulo `/export`; las propiedades se cargan desde el panel interno `lamelas` (repo `../lamelas`).
 
-**Fuera de alcance:** auth de usuarios, carga/edición de propiedades, panel de gestión (todo eso vive en `lamelas`), y cualquier mutación de datos.
+**Fuera de alcance:** auth de usuarios, carga/edición de propiedades, panel de gestión (todo eso vive en `lamelas`) y cualquier mutación de datos, con la única excepción del alta de leads del formulario de contacto.
 
 ## Stack
 
@@ -24,34 +24,36 @@ npm run build    # correr antes de dar por terminado
 ## Estructura
 
 - `src/pages/` — `Home`, `Properties` (listado + filtros por query params), `PropertyDetail` (ruta `/propiedades/:slug`)
-- `src/components/` — Header, Footer, Hero, PropertyCard, FeaturedProperties, etc.
-- `src/types.ts` — tipos del dominio (hoy reflejan el mock, deben migrar al modelo real)
-- `src/data/mockProperties.ts` — datos mock **a reemplazar** por Supabase
+- `src/components/` — Header, Footer, Hero, PropertyCard, FeaturedProperties, Contact, etc.
+- `src/types.ts` — modelo del dominio que consumen los componentes (snake_case)
+- `src/lib/api.ts` — cliente HTTP del backend (base URL, API key, manejo de errores)
+- `src/lib/properties.ts` — consultas a `/export` y adaptación del payload al modelo de `types.ts`
 
-## Integración con Supabase (backend del repo `lamelas`)
+## Integración con back-lamelas
 
-Fuente de verdad del modelo: `../lamelas/supabase/migrations/0001_init.sql`.
+Fuente de verdad del modelo: `../back-lamelas/src/modules/export/` y `docs/api.md` de ese repo.
 
-- **Cliente:** `@supabase/supabase-js` con `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`. **Nunca** usar la service role key.
-- **Solo lectura:** consultas `select` a `properties` + `property_images`. Cero mutaciones desde este repo.
-- **Solo disponibles:** filtrar siempre `estado = 'disponible'`. No mostrar reservadas ni vendidas (salvo pedido explícito).
-- **RLS — ojo:** las policies actuales solo permiten `select` a `authenticated`. Para que el sitio público lea datos hace falta una **migración nueva en el repo `lamelas`** que agregue policy de `select` para `anon` (idealmente restringida a `estado = 'disponible'`). Los cambios de BD/policies se hacen SIEMPRE en `lamelas/supabase/migrations/`, nunca desde este repo.
-- **Modelo real (columnas en español):** `properties(titulo, operacion, tipo, precio, moneda, descripcion, direccion, zona, ciudad, ambientes, dormitorios, banios, sup_cubierta, sup_total, estado, ...)`.
-  - Enums: `operacion` = `venta | alquiler` · `tipo` = `casa | departamento | terreno | local | otro` · `moneda` = `ARS | USD`. Los 12 tipos del mock no existen en la BD; ajustar tipos y filtros de UI a estos enums.
+- **Cliente:** `src/lib/api.ts` con `VITE_API_URL` (base sin barra final) y `VITE_API_KEY` (header `X-Api-Key`). La key es de solo lectura, está acotada al tenant y se revoca desde el panel en un minuto: puede viajar en el bundle. **Nunca** credenciales de admin ni cookies de sesión en este repo.
+- **Solo lectura:** `GET /v1/export/properties`, `GET /v1/export/properties/:idOrSlug`, `GET /v1/export/ciudades`. La única escritura permitida es `POST /v1/public/:tenant_slug/leads` desde el formulario de contacto.
+- **Solo disponibles:** mandar siempre `estado=disponible`. No mostrar reservadas ni vendidas (salvo pedido explícito).
+- **Capa de adaptación obligatoria:** ningún componente llama a la API directamente. `src/lib/properties.ts` traduce camelCase → snake_case, convierte a número los `numeric` que viajan como string (`precio`, `supCubierta`, `supTotal`) y renombra `images` → `property_images`. Si cambia la API, se toca solo ese archivo.
+- **Modelo:** `titulo, operacion, tipo, precio, moneda, descripcion, direccion, zona, ciudad, ambientes, dormitorios, banios, sup_cubierta, sup_total, estado, slug`.
+  - Enums: `operacion` = `venta | alquiler` · `tipo` = `casa | departamento | terreno | local | otro` · `moneda` = `ARS | USD`.
   - Solo `titulo`, `operacion`, `tipo` y `precio` son obligatorios. **Todo lo demás puede ser null** — la UI debe tolerar ausencia de dormitorios, baños, superficies, zona, descripción y fotos sin romperse.
-  - **No exponer `notas`** (campo interno de vendedores) ni datos del vendedor.
-- **Imágenes:** bucket público `property-images`, path `{property_id}/{uuid}.webp`. URL con `supabase.storage.from('property-images').getPublicUrl(url)`. Portada: `es_portada = true`; galería ordenada por `orden`. Prever placeholder si no hay fotos.
+  - El select de `/export` ya excluye `notas`, `user_id` y `tenant_id` (hay tests anti-fuga en el backend). No intentar pedirlos.
+- **Imágenes:** la API devuelve la **URL absoluta** ya resuelta. `imageUrl()` quedó como identidad para no tocar los componentes. Portada: `es_portada = true`; galería ordenada por `orden`. Prever placeholder si no hay fotos.
+- **Filtros y orden los resuelve la API:** `operacion`, `tipo`, `ciudad`, `dormitorios_min`, `precio_min`, `precio_max`, `sort` (`recent | price-asc | price-desc`), `page`, `limit` (máx. 100). No filtrar ni ordenar en el cliente sobre una página parcial.
 
 ## Reglas del proyecto
 
-1. **Solo lectura.** Ninguna escritura a la BD ni al storage desde este sitio.
+1. **Solo lectura**, salvo el alta de leads del formulario de contacto.
 2. **Mobile-first.** El público navega desde el celular; probar en viewport móvil.
-3. **UI y textos en español (Argentina).** Código (variables, funciones) en inglés; columnas de BD en español — respetarlas.
+3. **UI y textos en español (Argentina).** Código (variables, funciones) en inglés; campos de la API en español — respetarlos.
 4. **Marca:** por decisión del cliente (jul 2026), el sitio público mantiene su propia identidad: verde `#16A34A`, bordes redondeados, Inter + Space Grotesk (display). Tokens en `@theme` de `src/index.css`. El design system de `../lamelas/docs/design-system.md` (`#0E9145`, bordes rectos) aplica solo a la app interna — no converger sin pedido explícito.
 5. **lucide-react es la única librería de íconos.** No instalar otras librerías de UI/íconos.
-6. **No agregar alcance de gestión** (login, carga de propiedades, leads con backend) sin pedido explícito.
+6. **No agregar alcance de gestión** (login, carga de propiedades, bandeja de leads) sin pedido explícito.
 7. SEO básico: títulos y metadatos por página en español; URLs limpias `/propiedades/:slug`.
 
 ## Al terminar una tarea
 
-`npm run lint && npm run build` sin errores. Si el cambio depende de acceso a datos, verificar que la policy `anon` exista en `lamelas` (o dejarlo documentado como bloqueante).
+`npm run lint && npm run build` sin errores. Si el cambio depende de datos reales, verificar que `back-lamelas` esté corriendo y que `VITE_API_KEY` tenga una key válida del tenant.

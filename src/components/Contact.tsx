@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Phone, MapPin, MessageCircle, CheckCircle2 } from 'lucide-react';
+import { Phone, MapPin, MessageCircle, CheckCircle2, AlertCircle } from 'lucide-react';
 import { motion } from 'motion/react';
+import { apiPost, TENANT_SLUG } from '../lib/api';
 
 // Sección combinada: sucursales (ex "Estamos cerca tuyo") + formulario de contacto
 const contacts = [
@@ -27,12 +28,52 @@ const contacts = [
   },
 ];
 
+const MOTIVO_LABELS: Record<string, string> = {
+  comprar: 'Quiero comprar',
+  alquilar: 'Quiero alquilar',
+  vender: 'Quiero vender',
+  tasar: 'Quiero tasar mi propiedad',
+  otro: 'Otro motivo',
+};
+
 export default function Contact() {
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSent(true);
+    if (sending || sent) return;
+
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const motivo = String(data.get('motivo') ?? '');
+    const texto = String(data.get('mensaje') ?? '').trim();
+
+    setSending(true);
+    setError(null);
+    try {
+      // El CRM guarda un solo campo de mensaje: el motivo elegido va como
+      // encabezado para que el vendedor lo vea sin abrir la ficha.
+      await apiPost(`/v1/public/${TENANT_SLUG}/leads`, {
+        nombre: String(data.get('nombre') ?? '').trim(),
+        email: String(data.get('email') ?? '').trim() || undefined,
+        telefono: String(data.get('telefono') ?? '').trim() || undefined,
+        mensaje: motivo ? `[${MOTIVO_LABELS[motivo] ?? motivo}] ${texto}` : texto,
+        // Honeypot: si un bot lo completa, la API rechaza la consulta.
+        website: String(data.get('website') ?? ''),
+      });
+      setSent(true);
+      form.reset();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'No pudimos enviar tu consulta. Escribinos por WhatsApp y te respondemos igual.'
+      );
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -103,7 +144,23 @@ export default function Contact() {
                   ¡Recibimos tu consulta! Te contactamos dentro del día.
                 </div>
               )}
+              {error && (
+                <div role="alert" className="mb-6 flex items-center gap-3 bg-red-50 text-red-700 font-medium p-4 rounded-md">
+                  <AlertCircle size={20} className="shrink-0" aria-hidden="true" />
+                  {error}
+                </div>
+              )}
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Honeypot: oculto para personas, tentador para bots. */}
+                <input
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="hidden"
+                />
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label htmlFor="contact-nombre" className="text-sm font-medium text-gray-700">Nombre completo</label>
@@ -137,8 +194,8 @@ export default function Contact() {
                   <textarea id="contact-mensaje" name="mensaje" required rows={4} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary/50 resize-none" placeholder="Escribí tu consulta acá…"></textarea>
                 </div>
 
-                <button type="submit" disabled={sent} className="w-full bg-gray-900 text-white font-bold py-4 rounded-md hover:bg-brand-primary transition-colors duration-300 disabled:opacity-50 disabled:pointer-events-none">
-                  {sent ? 'Consulta enviada' : 'Enviar consulta'}
+                <button type="submit" disabled={sending || sent} className="w-full bg-gray-900 text-white font-bold py-4 rounded-md hover:bg-brand-primary transition-colors duration-300 disabled:opacity-50 disabled:pointer-events-none">
+                  {sent ? 'Consulta enviada' : sending ? 'Enviando…' : 'Enviar consulta'}
                 </button>
               </form>
             </div>
