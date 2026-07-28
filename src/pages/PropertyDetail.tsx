@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, Bed, Bath, Maximize, LayoutGrid, Share2, Phone, Loader2, ImageOff, CheckCircle2, Images, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, Bed, Bath, Maximize, LayoutGrid, Share2, Loader2, ImageOff, CheckCircle2, AlertCircle, Images, ChevronLeft, ChevronRight } from 'lucide-react';
 import Lightbox from '../components/Lightbox';
+import WhatsAppIcon from '../components/WhatsAppIcon';
 import { Property, OPERACION_LABELS, TIPO_LABELS } from '../types';
 import { fetchPropertyBySlug, imageUrl, sortedImages, formatPrice, locationLine, coverUrl } from '../lib/properties';
 import { useSeo } from '../lib/seo';
+import { apiPost, TENANT_SLUG } from '../lib/api';
 
 export default function PropertyDetail() {
   const { slug } = useParams();
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [galleryIndex, setGalleryIndex] = useState(0);
 
@@ -18,6 +22,9 @@ export default function PropertyDetail() {
     window.scrollTo(0, 0);
     let cancelled = false;
     setLoading(true);
+    setSent(false);
+    setSending(false);
+    setError(null);
     setGalleryIndex(0);
     if (!slug) {
       setProperty(null);
@@ -47,6 +54,7 @@ export default function PropertyDetail() {
         `${TIPO_LABELS[property.tipo]} en ${OPERACION_LABELS[property.operacion].toLowerCase()}${property.ciudad ? ` en ${property.ciudad}` : ''}. ${formatPrice(property.precio, property.moneda)}.`)
       : undefined,
     image: property ? (coverUrl(property) ?? undefined) : undefined,
+    imageAlt: property ? `Foto de ${property.titulo}` : undefined,
     jsonLd: property
       ? {
           '@context': 'https://schema.org',
@@ -105,6 +113,45 @@ export default function PropertyDetail() {
       navigator.share({ title: property.titulo, url: window.location.href }).catch(() => {});
     } else {
       navigator.clipboard.writeText(window.location.href).catch(() => {});
+    }
+  };
+
+  const handleInquirySubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (sending || sent) return;
+
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const nombre = String(data.get('nombre') ?? '').trim();
+    const telefono = String(data.get('telefono') ?? '').trim();
+    const email = String(data.get('email') ?? '').trim();
+    const mensaje = String(data.get('mensaje') ?? '').trim();
+
+    if (!telefono && !email) {
+      setError('Dejanos un teléfono o un email para poder responderte.');
+      return;
+    }
+
+    setSending(true);
+    setError(null);
+    try {
+      await apiPost(`/v1/public/${TENANT_SLUG}/leads`, {
+        nombre,
+        telefono: telefono || undefined,
+        email: email || undefined,
+        mensaje: `[Consulta propiedad] ${property.titulo} (${window.location.href})\n\n${mensaje}`,
+        website: String(data.get('website') ?? ''),
+      });
+      setSent(true);
+      form.reset();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'No pudimos enviar tu consulta. Escribinos por WhatsApp y te respondemos igual.'
+      );
+    } finally {
+      setSending(false);
     }
   };
 
@@ -314,25 +361,42 @@ export default function PropertyDetail() {
                   ¡Recibimos tu consulta! Te contactamos dentro del día.
                 </div>
               )}
-              <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setSent(true); }}>
+              {error && (
+                <div id="inquiry-error" role="alert" className="mb-4 flex items-center gap-3 bg-red-50 text-red-700 font-medium p-4 rounded-md">
+                  <AlertCircle size={20} className="shrink-0" aria-hidden="true" />
+                  {error}
+                </div>
+              )}
+              <form className="space-y-4" onSubmit={handleInquirySubmit}>
+                <input
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="hidden"
+                />
                 <div>
                   <label htmlFor="inquiry-nombre" className="sr-only">Nombre completo</label>
                   <input id="inquiry-nombre" name="nombre" required type="text" autoComplete="name" placeholder="Nombre completo" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
                 </div>
                 <div>
                   <label htmlFor="inquiry-telefono" className="sr-only">Teléfono</label>
-                  <input id="inquiry-telefono" name="telefono" required type="tel" autoComplete="tel" placeholder="Teléfono" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+                  <input id="inquiry-telefono" name="telefono" type="tel" autoComplete="tel" placeholder="Teléfono" aria-describedby="inquiry-contact-hint inquiry-error" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
                 </div>
                 <div>
                   <label htmlFor="inquiry-email" className="sr-only">Email</label>
-                  <input id="inquiry-email" name="email" required type="email" autoComplete="email" placeholder="Email" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+                  <input id="inquiry-email" name="email" type="email" autoComplete="email" placeholder="Email" aria-describedby="inquiry-contact-hint inquiry-error" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
                 </div>
+                <p id="inquiry-contact-hint" className="text-xs text-gray-500 -mt-2">
+                  Dejá al menos un dato de contacto: teléfono o email.
+                </p>
                 <div>
                   <label htmlFor="inquiry-mensaje" className="sr-only">Mensaje</label>
                   <textarea id="inquiry-mensaje" name="mensaje" required rows={4} placeholder="Hola, me interesa esta propiedad…" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary/50 resize-none"></textarea>
                 </div>
-                <button type="submit" disabled={sent} className="w-full bg-gray-900 text-white font-bold py-3.5 rounded-md hover:bg-brand-primary transition-colors disabled:opacity-50 disabled:pointer-events-none">
-                  {sent ? 'Consulta enviada' : 'Consultar por esta propiedad'}
+                <button type="submit" disabled={sending || sent} className="w-full bg-gray-900 text-white font-bold py-3.5 rounded-md hover:bg-brand-primary transition-colors disabled:opacity-50 disabled:pointer-events-none">
+                  {sent ? 'Consulta enviada' : sending ? 'Enviando…' : 'Consultar por esta propiedad'}
                 </button>
               </form>
 
@@ -348,7 +412,7 @@ export default function PropertyDetail() {
                 rel="noopener noreferrer"
                 className="mt-6 flex items-center justify-center gap-2 w-full bg-brand-primary text-white font-bold py-3.5 rounded-md hover:bg-brand-dark transition-colors"
               >
-                <Phone size={20} />
+                <WhatsAppIcon className="h-5 w-5 text-white" />
                 WhatsApp Directo
               </a>
             </div>

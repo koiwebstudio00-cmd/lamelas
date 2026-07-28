@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Search, MapPin, Building2, MessageCircle } from 'lucide-react';
+import { Search, MapPin, Building2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { TIPOS, TIPO_LABELS } from '../types';
+import WhatsAppIcon from './WhatsAppIcon';
 
 const operations = [
   { value: '', label: 'Todas' },
@@ -62,15 +63,6 @@ export default function Hero() {
       </div>
 
       <div className="relative z-10 container mx-auto px-4 text-center pt-20 pb-12 md:pt-24 md:pb-16 flex flex-col items-center justify-center w-full">
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-brand-light/90 font-semibold tracking-[0.25em] uppercase text-[10px] md:text-sm mb-3 md:mb-5"
-        >
-          Lamelas &amp; Chaumont
-        </motion.p>
-
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -147,19 +139,6 @@ export default function Hero() {
             </button>
           </form>
 
-          {/* Tasación por WhatsApp */}
-          <div className="mt-4 flex items-center justify-center">
-            <a
-              href="https://wa.me/543812310357?text=Hola!%20Quiero%20solicitar%20una%20tasacion%20de%20mi%20propiedad"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-xs md:text-sm text-white/90 hover:text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm transition-all border border-white/10"
-            >
-              <MessageCircle size={15} aria-hidden="true" className="text-brand-light" />
-              <span>¿Querés vender? <strong>Tasación por WhatsApp</strong></span>
-            </a>
-          </div>
-
           {/* Búsquedas frecuentes: al listado ya filtrado, sin tocar el form */}
           <div className="mt-4 hidden md:flex flex-wrap items-center justify-center gap-2">
             {quickLinks.map((link) => (
@@ -190,7 +169,7 @@ export default function Hero() {
             Sucursales en SMT y Yerba Buena
           </span>
           <span className="flex items-center gap-2">
-            <MessageCircle size={15} aria-hidden="true" className="text-brand-light" />
+            <WhatsAppIcon className="h-[15px] w-[15px]" />
             Respuesta directa por WhatsApp
           </span>
         </motion.div>

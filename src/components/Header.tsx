@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, X, MessageCircle } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
+import WhatsAppIcon from './WhatsAppIcon';
 
 // Nav agrupada: Venta/Alquiler viven dentro de Propiedades (filtros)
 const navLinks = [
@@ -118,7 +119,7 @@ export default function Header() {
                 : 'bg-brand-primary text-white hover:bg-brand-dark'
             }`}
           >
-            <MessageCircle size={17} aria-hidden="true" />
+            <WhatsAppIcon className={`h-[17px] w-[17px] ${overHero ? 'text-[#25D366]' : 'text-white'}`} />
             WhatsApp
           </a>
         </div>
@@ -191,7 +192,7 @@ export default function Header() {
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 bg-brand-primary text-white px-5 py-3 rounded-full font-semibold mt-3 shadow-sm"
             >
-              <MessageCircle size={18} aria-hidden="true" />
+              <WhatsAppIcon className="h-[18px] w-[18px] text-white" />
               Escribinos por WhatsApp
             </a>
           </motion.div>

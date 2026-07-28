@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Phone, MapPin, MessageCircle, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Phone, MapPin, CheckCircle2, AlertCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { apiPost, TENANT_SLUG } from '../lib/api';
+import WhatsAppIcon from './WhatsAppIcon';
 
 // Sección combinada: sucursales (ex "Estamos cerca tuyo") + formulario de contacto
 const contacts = [
@@ -49,6 +50,13 @@ export default function Contact() {
     const data = new FormData(form);
     const motivo = String(data.get('motivo') ?? '');
     const texto = String(data.get('mensaje') ?? '').trim();
+    const telefono = String(data.get('telefono') ?? '').trim();
+    const email = String(data.get('email') ?? '').trim();
+
+    if (!telefono && !email) {
+      setError('Dejanos un teléfono o un email para poder responderte.');
+      return;
+    }
 
     setSending(true);
     setError(null);
@@ -57,8 +65,8 @@ export default function Contact() {
       // encabezado para que el vendedor lo vea sin abrir la ficha.
       await apiPost(`/v1/public/${TENANT_SLUG}/leads`, {
         nombre: String(data.get('nombre') ?? '').trim(),
-        email: String(data.get('email') ?? '').trim() || undefined,
-        telefono: String(data.get('telefono') ?? '').trim() || undefined,
+        email: email || undefined,
+        telefono: telefono || undefined,
         mensaje: motivo ? `[${MOTIVO_LABELS[motivo] ?? motivo}] ${texto}` : texto,
         // Honeypot: si un bot lo completa, la API rechaza la consulta.
         website: String(data.get('website') ?? ''),
@@ -117,9 +125,9 @@ export default function Contact() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`WhatsApp — ${contact.name}`}
-                    className="shrink-0 h-11 w-11 rounded-full bg-brand-light/70 text-brand-dark flex items-center justify-center hover:bg-brand-primary hover:text-white transition-colors"
+                    className="group shrink-0 h-11 w-11 rounded-full bg-brand-light/70 text-brand-dark flex items-center justify-center hover:bg-brand-primary hover:text-white transition-colors"
                   >
-                    <MessageCircle size={19} aria-hidden="true" />
+                    <WhatsAppIcon className="h-[19px] w-[19px] group-hover:text-white" />
                   </a>
                 </li>
               ))}
@@ -166,16 +174,20 @@ export default function Contact() {
                     <label htmlFor="contact-nombre" className="text-sm font-medium text-gray-700">Nombre completo</label>
                     <input id="contact-nombre" name="nombre" required type="text" autoComplete="name" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary/50" placeholder="Ej. Juan Pérez" />
                   </div>
-                  <div className="space-y-2">
-                    <label htmlFor="contact-telefono" className="text-sm font-medium text-gray-700">Teléfono</label>
-                    <input id="contact-telefono" name="telefono" required type="tel" autoComplete="tel" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary/50" placeholder="Código de área + número" />
-                  </div>
-                </div>
+	                  <div className="space-y-2">
+	                    <label htmlFor="contact-telefono" className="text-sm font-medium text-gray-700">Teléfono</label>
+	                    <input id="contact-telefono" name="telefono" type="tel" autoComplete="tel" aria-describedby="contact-info-hint" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary/50" placeholder="Código de área + número" />
+	                  </div>
+	                </div>
+	
+	                <div className="space-y-2">
+	                  <label htmlFor="contact-email" className="text-sm font-medium text-gray-700">Email</label>
+	                  <input id="contact-email" name="email" type="email" autoComplete="email" aria-describedby="contact-info-hint" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary/50" placeholder="tu@email.com" />
+	                </div>
 
-                <div className="space-y-2">
-                  <label htmlFor="contact-email" className="text-sm font-medium text-gray-700">Email</label>
-                  <input id="contact-email" name="email" required type="email" autoComplete="email" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary/50" placeholder="tu@email.com" />
-                </div>
+	                <p id="contact-info-hint" className="text-sm text-gray-500 -mt-3">
+	                  Dejá al menos un dato de contacto: teléfono o email.
+	                </p>
 
                 <div className="space-y-2">
                   <label htmlFor="contact-motivo" className="text-sm font-medium text-gray-700">Motivo de consulta</label>

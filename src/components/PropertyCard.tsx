@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Bed, Bath, Maximize, MapPin, ImageOff } from 'lucide-react';
 import { Property, OPERACION_LABELS, TIPO_LABELS } from '../types';
 import { coverUrl, formatPrice, locationLine, propertySlug } from '../lib/properties';
+import WhatsAppIcon from './WhatsAppIcon';
 
 interface PropertyCardProps {
   property: Property;
@@ -89,8 +90,9 @@ export default function PropertyCard({ property }: PropertyCardProps) {
             href={`https://wa.me/543812310357?text=${encodeURIComponent(`Hola, me interesa la propiedad: ${property.titulo}`)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 bg-brand-primary hover:bg-brand-dark text-white text-center py-2.5 rounded-md text-sm font-semibold transition-colors"
+            className="flex-1 bg-brand-primary hover:bg-brand-dark text-white py-2.5 rounded-md text-sm font-semibold transition-colors inline-flex items-center justify-center gap-2"
           >
+            <WhatsAppIcon className="h-4 w-4 text-white" />
             Consultar
           </a>
         </div>
