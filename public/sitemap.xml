@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Ajustar al dominio definitivo antes de publicar.
-     Las fichas de propiedades son dinámicas; para indexarlas, generar
+<!-- Las fichas de propiedades son dinámicas; para indexarlas, generar
      este archivo en el build o servirlo desde un endpoint. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://lamelasychaumont.com/</loc>
+    <loc>https://inmobiliarialyc.com.ar/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://lamelasychaumont.com/propiedades</loc>
+    <loc>https://inmobiliarialyc.com.ar/propiedades</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
