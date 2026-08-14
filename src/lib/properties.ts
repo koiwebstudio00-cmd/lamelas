@@ -1,5 +1,17 @@
 import { apiGet, ApiError } from './api';
-import { Moneda, Operacion, Property, PropertyImage, TipoPropiedad } from '../types';
+import {
+  AjusteAlquiler,
+  AmobladoAlquiler,
+  DestinoAlquiler,
+  IndiceAjuste,
+  MascotasAlquiler,
+  Moneda,
+  Operacion,
+  PlazoContrato,
+  Property,
+  PropertyImage,
+  TipoPropiedad,
+} from '../types';
 
 export type SortOption = 'recent' | 'price-asc' | 'price-desc';
 
@@ -55,7 +67,21 @@ interface ApiProperty {
   banios: number | null;
   supCubierta: string | number | null;
   supTotal: string | number | null;
-  estado: 'disponible' | 'reservada' | 'vendida';
+  estado: 'disponible' | 'reservado' | 'proximamente' | 'pausado' | 'vendida' | 'alquilada';
+  requisitos: string | null;
+  destino: DestinoAlquiler | null;
+  plazoContrato: PlazoContrato | null;
+  plazoOtro: string | null;
+  ajuste: AjusteAlquiler | null;
+  ajusteOtro: string | null;
+  indiceAjuste: IndiceAjuste | null;
+  indiceFijoPct: string | number | null;
+  expensas: string | null;
+  mascotas: MascotasAlquiler | null;
+  amoblado: AmobladoAlquiler | null;
+  lat: string | number | null;
+  lng: string | number | null;
+  linkMaps: string | null;
   createdAt: string;
   images?: ApiImage[];
 }
@@ -88,6 +114,20 @@ function toProperty(p: ApiProperty): Property {
     banios: p.banios,
     sup_cubierta: num(p.supCubierta),
     sup_total: num(p.supTotal),
+    requisitos: p.requisitos ?? null,
+    destino: p.destino ?? null,
+    plazo_contrato: p.plazoContrato ?? null,
+    plazo_otro: p.plazoOtro ?? null,
+    ajuste: p.ajuste ?? null,
+    ajuste_otro: p.ajusteOtro ?? null,
+    indice_ajuste: p.indiceAjuste ?? null,
+    indice_fijo_pct: num(p.indiceFijoPct),
+    expensas: p.expensas ?? null,
+    mascotas: p.mascotas ?? null,
+    amoblado: p.amoblado ?? null,
+    lat: num(p.lat),
+    lng: num(p.lng),
+    link_maps: p.linkMaps ?? null,
     created_at: p.createdAt,
     property_images: (p.images ?? []).map(toImage),
   };

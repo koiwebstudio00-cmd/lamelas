@@ -3,7 +3,18 @@ import { useParams, Link } from 'react-router-dom';
 import { MapPin, Bed, Bath, Maximize, LayoutGrid, Share2, Loader2, ImageOff, CheckCircle2, AlertCircle, Images, ChevronLeft, ChevronRight } from 'lucide-react';
 import Lightbox from '../components/Lightbox';
 import WhatsAppIcon from '../components/WhatsAppIcon';
-import { Property, OPERACION_LABELS, TIPO_LABELS } from '../types';
+import {
+  Property,
+  OPERACION_LABELS,
+  TIPO_LABELS,
+  DESTINO_LABELS,
+  PLAZO_LABELS,
+  AJUSTE_LABELS,
+  INDICE_LABELS,
+  MASCOTAS_LABELS,
+  AMOBLADO_LABELS,
+} from '../types';
+import PropertyMap from '../components/PropertyMap';
 import { fetchPropertyBySlug, imageUrl, sortedImages, formatPrice, locationLine, coverUrl } from '../lib/properties';
 import { useSeo } from '../lib/seo';
 import { apiPost, TENANT_SLUG } from '../lib/api';
@@ -107,6 +118,40 @@ export default function PropertyDetail() {
     property.dormitorios != null && { icon: Bed, label: 'Dormitorios', value: `${property.dormitorios}` },
     property.banios != null && { icon: Bath, label: 'Baños', value: `${property.banios}` },
   ].filter(Boolean) as { icon: typeof Bed; label: string; value: string }[];
+
+  const plazoValue =
+    property.plazo_contrato === 'otro'
+      ? property.plazo_otro
+      : property.plazo_contrato
+        ? PLAZO_LABELS[property.plazo_contrato]
+        : null;
+  const ajusteValue =
+    property.ajuste === 'otro'
+      ? property.ajuste_otro
+      : property.ajuste
+        ? AJUSTE_LABELS[property.ajuste]
+        : null;
+  const indiceValue =
+    property.indice_ajuste === 'fijo'
+      ? property.indice_fijo_pct != null
+        ? `Fijo ${property.indice_fijo_pct}%`
+        : 'Fijo'
+      : property.indice_ajuste
+        ? INDICE_LABELS[property.indice_ajuste]
+        : null;
+
+  const alquilerItems =
+    property.operacion === 'alquiler'
+      ? ([
+          ['Destino', property.destino ? DESTINO_LABELS[property.destino] : null],
+          ['Plazo de contrato', plazoValue],
+          ['Ajuste', ajusteValue],
+          ['Índice de ajuste', indiceValue],
+          ['Expensas', property.expensas],
+          ['Mascotas', property.mascotas ? MASCOTAS_LABELS[property.mascotas] : null],
+          ['Amoblado', property.amoblado ? AMOBLADO_LABELS[property.amoblado] : null],
+        ].filter(([, v]) => v) as [string, string][])
+      : [];
 
   const share = () => {
     if (navigator.share) {
@@ -323,6 +368,33 @@ export default function PropertyDetail() {
               </div>
             )}
 
+            {/* Condiciones de alquiler */}
+            {alquilerItems.length > 0 && (
+              <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Condiciones de alquiler</h2>
+                <dl className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4">
+                  {alquilerItems.map(([label, value]) => (
+                    <div key={label}>
+                      <dt className="text-sm text-gray-500">{label}</dt>
+                      <dd className="font-bold text-gray-900">{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            )}
+
+            {/* Requisitos para alquilar */}
+            {property.requisitos && (
+              <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Requisitos para alquilar</h2>
+                <div className="text-gray-700 leading-relaxed space-y-4">
+                  {property.requisitos.split('\n').map((paragraph, i) => (
+                    <p key={i}>{paragraph}</p>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Description */}
             {property.descripcion && (
               <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
@@ -335,16 +407,11 @@ export default function PropertyDetail() {
               </div>
             )}
 
-            {/* Map Placeholder — oculto por ahora (pedido jul 2026); reactivar cuando haya mapa real */}
-            {false && location && (
+            {/* Ubicación en el mapa (si la propiedad tiene coordenadas cargadas) */}
+            {property.lat != null && property.lng != null && (
               <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Ubicación aproximada</h2>
-                <div className="w-full h-[300px] bg-gray-200 rounded-xl flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'radial-gradient(circle at center, #9ca3af 2px, transparent 2px)', backgroundSize: '20px 20px' }}></div>
-                  <div className="z-10 bg-white/90 p-4 rounded-full shadow-lg text-brand-primary">
-                    <MapPin size={32} />
-                  </div>
-                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Ubicación</h2>
+                <PropertyMap lat={property.lat} lng={property.lng} />
               </div>
             )}
 

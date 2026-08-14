@@ -22,7 +22,11 @@ export default function PropertyCard({ property }: PropertyCardProps) {
 
   return (
     <div className="group bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 flex flex-col h-full">
-      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+      <Link
+        to={`/propiedades/${propertySlug(property)}`}
+        aria-label={`Ver ${property.titulo}`}
+        className="relative block aspect-[4/3] overflow-hidden bg-gray-100"
+      >
         {cover ? (
           <img
             src={cover}
@@ -43,7 +47,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
             {TIPO_LABELS[property.tipo]}
           </span>
         </div>
-      </div>
+      </Link>
 
       <div className="p-5 flex flex-col flex-grow">
         <div className="mb-4">
