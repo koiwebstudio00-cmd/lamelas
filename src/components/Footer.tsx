@@ -66,13 +66,18 @@ export default function Footer() {
 
         </div>
 
-        <div className="pt-8 border-t border-gray-800 text-sm text-gray-500 text-center">
-          <p className="mb-4 text-xs">
-            Todas las medidas enunciadas son meramente orientativas. Las medidas exactas serán las que se expresen en el respectivo título de propiedad de cada inmueble. Todas las fotos, imágenes y videos son meramente ilustrativos y no contractuales. Los precios enunciados son meramente orientativos y no contractuales.
-          </p>
-          <p>
-            &copy; 2026 Lamelas y Chaumont. Desarrollado por Koi Studio &middot; Diseñamos software e IA para resolver problemas reales de negocio.
-          </p>
+        <div className="pt-8 border-t border-gray-800 text-sm text-gray-500">
+          <div className="flex flex-col gap-2 text-center md:flex-row md:items-center md:justify-between md:text-left">
+            <p>&copy; 2026 Lamelas y Chaumont</p>
+            <a
+              href="https://koistudio.com.ar"
+              target="_blank"
+              rel="noreferrer"
+              className="transition-colors hover:text-brand-primary md:text-right"
+            >
+              Desarrollado por Koi Studio
+            </a>
+          </div>
         </div>
       </div>
     </footer>

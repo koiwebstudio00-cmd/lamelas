@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, Bed, Bath, Maximize, LayoutGrid, Share2, Loader2, ImageOff, CheckCircle2, AlertCircle, Images, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, Bed, Bath, Maximize, LayoutGrid, Share2, Loader2, ImageOff, CheckCircle2, AlertCircle, Images, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import Lightbox from '../components/Lightbox';
 import WhatsAppIcon from '../components/WhatsAppIcon';
 import {
@@ -110,6 +110,13 @@ export default function PropertyDetail() {
 
   const images = sortedImages(property);
   const location = locationLine(property);
+  const hasCoordinates = property.lat != null && property.lng != null;
+  const mapsLink = property.link_maps?.trim();
+  const mapsHref = mapsLink
+    ? /^https?:\/\//i.test(mapsLink)
+      ? mapsLink
+      : `https://${mapsLink}`
+    : null;
 
   const features = [
     property.sup_total != null && { icon: Maximize, label: 'Superficie Total', value: `${property.sup_total} m²` },
@@ -141,7 +148,7 @@ export default function PropertyDetail() {
         : null;
 
   const alquilerItems =
-    property.operacion === 'alquiler'
+    property.operacion === 'alquiler' || property.operacion === 'ambos'
       ? ([
           ['Destino', property.destino ? DESTINO_LABELS[property.destino] : null],
           ['Plazo de contrato', plazoValue],
@@ -252,8 +259,17 @@ export default function PropertyDetail() {
           </div>
           <div className="lg:text-right">
             <div className="text-3xl md:text-4xl font-bold text-brand-dark mb-1 tabular-nums">
+              {property.operacion === 'ambos' && (
+                <span className="block text-sm font-semibold text-gray-500">Venta</span>
+              )}
               {formatPrice(property.precio, property.moneda)}
             </div>
+            {property.operacion === 'ambos' && property.precio_alquiler != null && (
+              <div className="text-2xl md:text-3xl font-bold text-brand-dark tabular-nums">
+                <span className="block text-sm font-semibold text-gray-500">Alquiler</span>
+                {formatPrice(property.precio_alquiler, property.moneda_alquiler ?? property.moneda)}
+              </div>
+            )}
           </div>
         </div>
 
@@ -407,11 +423,22 @@ export default function PropertyDetail() {
               </div>
             )}
 
-            {/* Ubicación en el mapa (si la propiedad tiene coordenadas cargadas) */}
-            {property.lat != null && property.lng != null && (
+            {/* Ubicación: mapa si hay coordenadas y enlace externo si está cargado. */}
+            {(hasCoordinates || mapsHref) && (
               <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Ubicación</h2>
-                <PropertyMap lat={property.lat} lng={property.lng} />
+                {hasCoordinates && <PropertyMap lat={property.lat!} lng={property.lng!} />}
+                {mapsHref && (
+                  <a
+                    href={mapsHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex min-h-[44px] items-center gap-2 rounded-md bg-brand-primary px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-dark"
+                  >
+                    <ExternalLink size={18} aria-hidden="true" />
+                    Abrir en Google Maps
+                  </a>
+                )}
               </div>
             )}
 

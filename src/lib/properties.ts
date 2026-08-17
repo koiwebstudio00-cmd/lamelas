@@ -19,6 +19,9 @@ export interface PropertyFilters {
   operacion?: string;
   tipo?: string;
   ciudad?: string;
+  zona?: string;
+  /** Texto libre del buscador natural. */
+  q?: string;
   dormitoriosMin?: number;
   precioMin?: number;
   precioMax?: number;
@@ -58,6 +61,9 @@ interface ApiProperty {
   tipo: TipoPropiedad;
   precio: string | number;
   moneda: Moneda;
+  precioAlquiler: string | number | null;
+  monedaAlquiler: Moneda | null;
+  destacada?: boolean;
   descripcion: string | null;
   direccion: string | null;
   zona: string | null;
@@ -67,7 +73,7 @@ interface ApiProperty {
   banios: number | null;
   supCubierta: string | number | null;
   supTotal: string | number | null;
-  estado: 'disponible' | 'reservado' | 'proximamente' | 'pausado' | 'vendida' | 'alquilada';
+  estado: 'disponible' | 'reservado' | 'proximamente' | 'pausado' | 'vendida' | 'alquilada' | 'privado';
   requisitos: string | null;
   destino: DestinoAlquiler | null;
   plazoContrato: PlazoContrato | null;
@@ -105,6 +111,9 @@ function toProperty(p: ApiProperty): Property {
     tipo: p.tipo,
     precio: num(p.precio) ?? 0,
     moneda: p.moneda,
+    precio_alquiler: num(p.precioAlquiler),
+    moneda_alquiler: p.monedaAlquiler ?? null,
+    destacada: p.destacada ?? false,
     descripcion: p.descripcion,
     direccion: p.direccion,
     zona: p.zona,
@@ -144,7 +153,10 @@ export async function fetchProperties(filters: PropertyFilters = {}): Promise<Pr
       operacion: filters.operacion,
       tipo: filters.tipo,
       ciudad: filters.ciudad,
-      dormitorios_min: filters.dormitoriosMin,
+      zona: filters.zona,
+      q: filters.q,
+      // dormitorios exacto (1..3) / 4+ ; el backend interpreta el "4 o más".
+      dormitorios: filters.dormitoriosMin,
       precio_min: filters.precioMin,
       precio_max: filters.precioMax,
       sort: filters.sort ?? 'recent',
@@ -159,6 +171,12 @@ export async function fetchProperties(filters: PropertyFilters = {}): Promise<Pr
 export async function fetchCiudades(): Promise<string[]> {
   // La API ya devuelve el distinct ordenado alfabéticamente en es-AR.
   const res = await apiGet<{ data: string[] }>('/v1/export/ciudades', { estado: 'disponible' });
+  return res.data;
+}
+
+/** Zonas/barrios con propiedades disponibles, para el filtro del listado. */
+export async function fetchZonas(): Promise<string[]> {
+  const res = await apiGet<{ data: string[] }>('/v1/export/zonas', { estado: 'disponible' });
   return res.data;
 }
 

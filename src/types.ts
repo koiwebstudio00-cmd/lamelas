@@ -3,7 +3,7 @@
 // los componentes no conocen el formato de la API.
 // Solo titulo, operacion, tipo y precio son obligatorios: el resto puede ser null.
 
-export type Operacion = 'venta' | 'alquiler';
+export type Operacion = 'venta' | 'alquiler' | 'ambos';
 export type TipoPropiedad =
   | 'monoambiente'
   | 'departamento'
@@ -41,6 +41,11 @@ export interface Property {
   tipo: TipoPropiedad;
   precio: number;
   moneda: Moneda;
+  // operacion=ambos: precio/moneda = venta; estos = alquiler (null si no aplica).
+  precio_alquiler: number | null;
+  moneda_alquiler: Moneda | null;
+  // Destacada: la web la ordena primero (en el orden por defecto).
+  destacada: boolean;
   descripcion: string | null;
   direccion: string | null;
   zona: string | null;
@@ -73,6 +78,7 @@ export interface Property {
 export const OPERACION_LABELS: Record<Operacion, string> = {
   venta: 'Venta',
   alquiler: 'Alquiler',
+  ambos: 'Venta y alquiler',
 };
 
 export const TIPO_LABELS: Record<TipoPropiedad, string> = {

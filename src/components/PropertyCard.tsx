@@ -1,18 +1,43 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Bed, Bath, Maximize, MapPin, ImageOff } from 'lucide-react';
+import { Bed, Bath, Maximize, MapPin, ImageOff, Star } from 'lucide-react';
 import { Property, OPERACION_LABELS, TIPO_LABELS } from '../types';
 import { coverUrl, formatPrice, locationLine, propertySlug } from '../lib/properties';
 import WhatsAppIcon from './WhatsAppIcon';
 
 interface PropertyCardProps {
   property: Property;
+  /** Operación por la que el visitante está filtrando, si hay alguna. Cuando la
+   *  propiedad es "ambos", define qué precio muestra la card. */
+  filtroOperacion?: 'venta' | 'alquiler';
   key?: React.Key;
 }
 
-export default function PropertyCard({ property }: PropertyCardProps) {
+export default function PropertyCard({ property, filtroOperacion }: PropertyCardProps) {
   const cover = coverUrl(property);
   const location = locationLine(property);
+
+  // Precios: para operacion=ambos, `precio` es venta y `precio_alquiler` es
+  // alquiler. Según el filtro activo se muestra uno, el otro, o los dos.
+  const esAmbos = property.operacion === 'ambos';
+  const precioVentaStr = formatPrice(property.precio, property.moneda);
+  const precioAlquilerStr =
+    property.precio_alquiler != null
+      ? formatPrice(property.precio_alquiler, property.moneda_alquiler ?? property.moneda)
+      : null;
+  // Sin filtro (y con precio de alquiler cargado) mostramos los dos.
+  const mostrarAmbos = esAmbos && !filtroOperacion && precioAlquilerStr != null;
+  // Precio único: alquiler si se filtró por alquiler; si no, venta.
+  let precioLabel: string | null = null;
+  let precioValue = precioVentaStr;
+  if (esAmbos) {
+    if (filtroOperacion === 'alquiler' && precioAlquilerStr) {
+      precioLabel = 'Alquiler';
+      precioValue = precioAlquilerStr;
+    } else {
+      precioLabel = 'Venta';
+    }
+  }
 
   const features = [
     property.dormitorios != null && { icon: Bed, label: `${property.dormitorios} Dorm` },
@@ -47,13 +72,40 @@ export default function PropertyCard({ property }: PropertyCardProps) {
             {TIPO_LABELS[property.tipo]}
           </span>
         </div>
+        {property.destacada && (
+          <span className="absolute top-4 right-4 inline-flex items-center gap-1 bg-amber-400 text-amber-950 text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+            <Star size={12} className="fill-current" /> Destacada
+          </span>
+        )}
       </Link>
 
       <div className="p-5 flex flex-col flex-grow">
         <div className="mb-4">
-          <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-brand-primary transition-colors tabular-nums">
-            {formatPrice(property.precio, property.moneda)}
-          </h3>
+          {mostrarAmbos ? (
+            <div className="mb-2">
+              <p className="text-xl font-bold text-gray-900 group-hover:text-brand-primary transition-colors tabular-nums">
+                <span className="mr-1.5 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                  Venta
+                </span>
+                {precioVentaStr}
+              </p>
+              <p className="mt-0.5 text-base font-semibold text-gray-600 tabular-nums">
+                <span className="mr-1.5 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                  Alquiler
+                </span>
+                {precioAlquilerStr}
+              </p>
+            </div>
+          ) : (
+            <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-brand-primary transition-colors tabular-nums">
+              {precioLabel && (
+                <span className="mr-1.5 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                  {precioLabel}
+                </span>
+              )}
+              {precioValue}
+            </h3>
+          )}
           <h4 className="text-base font-medium text-gray-800 line-clamp-2 min-h-[3rem]">
             {property.titulo}
           </h4>

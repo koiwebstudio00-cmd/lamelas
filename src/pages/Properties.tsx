@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PropertyCard from '../components/PropertyCard';
-import { Filter, SlidersHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Filter, SlidersHorizontal, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
 function CardSkeleton() {
   return (
@@ -17,7 +17,7 @@ function CardSkeleton() {
   );
 }
 import { Property, TIPOS, TIPO_LABELS } from '../types';
-import { fetchProperties, fetchCiudades, SortOption, DEFAULT_PAGE_SIZE } from '../lib/properties';
+import { fetchProperties, fetchZonas, SortOption, DEFAULT_PAGE_SIZE } from '../lib/properties';
 import { useSeo } from '../lib/seo';
 
 /** Números de página a mostrar: 1 … vecinos de la actual … última */
@@ -38,7 +38,7 @@ function pageNumbers(current: number, totalPages: number): (number | '…')[] {
 export default function Properties() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [properties, setProperties] = useState<Property[]>([]);
-  const [ciudades, setCiudades] = useState<string[]>([]);
+  const [zonas, setZonas] = useState<string[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -71,27 +71,29 @@ export default function Properties() {
   };
 
   const [filters, setFilters] = useState({
+    query: searchParams.get('q') || '',
     operation: searchParams.get('op') || '',
     type: searchParams.get('tipo') || '',
-    city: searchParams.get('ciudad') || '',
+    zone: searchParams.get('zona') || '',
     minPrice: searchParams.get('min') || '',
     maxPrice: searchParams.get('max') || '',
     bedrooms: searchParams.get('dormitorios') || '',
     sort: 'recent' as SortOption,
   });
 
-  // Ciudades disponibles para el filtro (una sola vez)
+  // Zonas disponibles para el filtro (una sola vez)
   useEffect(() => {
-    fetchCiudades().then(setCiudades).catch(() => setCiudades([]));
+    fetchZonas().then(setZonas).catch(() => setZonas([]));
   }, []);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
     if (key === 'sort') return;
     const paramKey =
+      key === 'query' ? 'q' :
       key === 'operation' ? 'op' :
       key === 'type' ? 'tipo' :
-      key === 'city' ? 'ciudad' :
+      key === 'zone' ? 'zona' :
       key === 'minPrice' ? 'min' :
       key === 'maxPrice' ? 'max' :
       key === 'bedrooms' ? 'dormitorios' : key;
@@ -112,9 +114,10 @@ export default function Properties() {
     // Debounce: evita una consulta por tecla en los campos de precio
     const timer = setTimeout(() => {
       fetchProperties({
+      q: filters.query || undefined,
       operacion: filters.operation || undefined,
       tipo: filters.type || undefined,
-      ciudad: filters.city || undefined,
+      zona: filters.zone || undefined,
       dormitoriosMin: filters.bedrooms ? parseInt(filters.bedrooms) : undefined,
       precioMin: filters.minPrice ? parseInt(filters.minPrice) : undefined,
       precioMax: filters.maxPrice ? parseInt(filters.maxPrice) : undefined,
@@ -176,6 +179,21 @@ export default function Properties() {
 
               <div className="space-y-6">
                 <div>
+                  <label htmlFor="filter-q" className="block text-sm font-semibold text-gray-700 mb-2">Buscar</label>
+                  <div className="relative">
+                    <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true" />
+                    <input
+                      id="filter-q"
+                      type="search"
+                      value={filters.query}
+                      onChange={(e) => handleFilterChange('query', e.target.value)}
+                      placeholder="Ej: monoambiente en barrio sur"
+                      className="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div>
                   <label htmlFor="filter-op" className="block text-sm font-semibold text-gray-700 mb-2">Operación</label>
                   <select
                     id="filter-op"
@@ -204,20 +222,22 @@ export default function Properties() {
                   </select>
                 </div>
 
-                {/* <div>
-                  <label htmlFor="filter-ciudad" className="block text-sm font-semibold text-gray-700 mb-2">Ciudad</label>
-                  <select
-                    id="filter-ciudad"
-                    value={filters.city}
-                    onChange={(e) => handleFilterChange('city', e.target.value)}
-                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
-                  >
-                    <option value="">Todas</option>
-                    {ciudades.map(ciudad => (
-                      <option key={ciudad} value={ciudad}>{ciudad}</option>
-                    ))}
-                  </select>
-                </div> */}
+                {zonas.length > 0 && (
+                  <div>
+                    <label htmlFor="filter-zona" className="block text-sm font-semibold text-gray-700 mb-2">Zona</label>
+                    <select
+                      id="filter-zona"
+                      value={filters.zone}
+                      onChange={(e) => handleFilterChange('zone', e.target.value)}
+                      className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+                    >
+                      <option value="">Todas</option>
+                      {zonas.map(zona => (
+                        <option key={zona} value={zona}>{zona}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Rango de Precio</label>
@@ -254,9 +274,9 @@ export default function Properties() {
                     className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
                   >
                     <option value="">Indistinto</option>
-                    <option value="1">1 o más</option>
-                    <option value="2">2 o más</option>
-                    <option value="3">3 o más</option>
+                    <option value="1">1 dormitorio</option>
+                    <option value="2">2 dormitorios</option>
+                    <option value="3">3 dormitorios</option>
                     <option value="4">4 o más</option>
                   </select>
                 </div>
@@ -264,7 +284,7 @@ export default function Properties() {
 
               <button
                 onClick={() => {
-                  setFilters({ operation: '', type: '', city: '', minPrice: '', maxPrice: '', bedrooms: '', sort: 'recent' });
+                  setFilters({ query: '', operation: '', type: '', zone: '', minPrice: '', maxPrice: '', bedrooms: '', sort: 'recent' });
                   setSearchParams(new URLSearchParams());
                 }}
                 className="w-full mt-8 text-brand-primary font-medium hover:underline text-sm"
@@ -313,7 +333,15 @@ export default function Properties() {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                   {properties.map(property => (
-                    <PropertyCard key={property.id} property={property} />
+                    <PropertyCard
+                      key={property.id}
+                      property={property}
+                      filtroOperacion={
+                        filters.operation === 'venta' || filters.operation === 'alquiler'
+                          ? filters.operation
+                          : undefined
+                      }
+                    />
                   ))}
                 </div>
 
