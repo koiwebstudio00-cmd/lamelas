@@ -188,6 +188,7 @@ export default function PropertyDetail() {
     setError(null);
     try {
       await apiPost(`/v1/public/${TENANT_SLUG}/leads`, {
+        property_id: property.id,
         nombre,
         telefono: telefono || undefined,
         email: email || undefined,
