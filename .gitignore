@@ -6,3 +6,6 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Config local de Claude Code
+.claude/

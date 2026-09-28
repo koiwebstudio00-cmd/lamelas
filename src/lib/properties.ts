@@ -67,6 +67,7 @@ interface ApiProperty {
   descripcion: string | null;
   direccion: string | null;
   zona: string | null;
+  puntoReferencia: string | null;
   ciudad: string | null;
   ambientes: number | null;
   dormitorios: number | null;
@@ -117,6 +118,7 @@ function toProperty(p: ApiProperty): Property {
     descripcion: p.descripcion,
     direccion: p.direccion,
     zona: p.zona,
+    punto_referencia: p.puntoReferencia ?? null,
     ciudad: p.ciudad,
     ambientes: p.ambientes,
     dormitorios: p.dormitorios,
@@ -174,10 +176,45 @@ export async function fetchCiudades(): Promise<string[]> {
   return res.data;
 }
 
-/** Zonas/barrios con propiedades disponibles, para el filtro del listado. */
+/**
+ * Zonas de la inmobiliaria: lista fija, definida con la administración. El
+ * filtro del listado solo ofrece estas, no lo que haya cargado en la base: hasta
+ * que termine la limpieza de datos conviven valores viejos ("Barrio norte",
+ * "Capital", direcciones sueltas) que no son zonas y no deben verse acá.
+ */
+export const ZONAS = [
+  'Barrio Norte',
+  'Barrio Sur',
+  'Microcentro',
+  'Parque 9 de Julio',
+  'Parque Avellaneda',
+  'Ciudadela',
+  'Villa 9 de Julio',
+  'Villa Luján',
+  'Zona Abasto',
+  'Zona Quinta Agronómica',
+  'Parque Guillermina',
+  'Zona Portal',
+  'Las Talitas',
+  'Lomas de Tafí',
+  'Tafí Viejo',
+  'Yerba Buena',
+  'La Banda del Río Salí',
+  'Alderetes',
+  'San Pablo',
+  'Lules',
+  'Monteros',
+  'Concepción',
+] as const;
+
+/**
+ * Zonas con inventario disponible, cruzadas contra la lista fija y en el orden
+ * de la lista. Si la API devuelve algo que no está en ZONAS, se descarta.
+ */
 export async function fetchZonas(): Promise<string[]> {
   const res = await apiGet<{ data: string[] }>('/v1/export/zonas', { estado: 'disponible' });
-  return res.data;
+  const conInventario = new Set(res.data.map(z => z.trim()));
+  return ZONAS.filter(zona => conInventario.has(zona));
 }
 
 export async function fetchPropertyBySlug(slug: string): Promise<Property | null> {

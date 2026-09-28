@@ -49,6 +49,8 @@ export interface Property {
   descripcion: string | null;
   direccion: string | null;
   zona: string | null;
+  /** Referencia libre para ubicar la propiedad; no es la dirección ni la zona. */
+  punto_referencia: string | null;
   ciudad: string | null;
   ambientes: number | null;
   dormitorios: number | null;

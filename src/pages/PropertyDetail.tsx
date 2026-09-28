@@ -110,6 +110,9 @@ export default function PropertyDetail() {
 
   const images = sortedImages(property);
   const location = locationLine(property);
+  // Referencia para ubicar la propiedad. Va aparte de `location`: no es parte de
+  // la dirección, es una ayuda ("a una cuadra de Mate de Luna").
+  const referencia = property.punto_referencia?.trim() || null;
   const hasCoordinates = property.lat != null && property.lng != null;
   const mapsLink = property.link_maps?.trim();
   const mapsHref = mapsLink
@@ -255,6 +258,11 @@ export default function PropertyDetail() {
               <p className="flex items-center gap-2 text-gray-600 text-lg">
                 <MapPin size={20} className="text-brand-primary" />
                 {location}
+              </p>
+            )}
+            {referencia && (
+              <p className="mt-1.5 text-gray-500">
+                <span className="font-medium text-gray-600">Referencia:</span> {referencia}
               </p>
             )}
           </div>
