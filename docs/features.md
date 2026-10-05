@@ -1,6 +1,6 @@
 # Features por implementar — lamelas-web (sitio público)
 
-**Última revisión:** 2026-09-27
+**Última revisión:** 2026-10-05
 
 Backlog exclusivo de **este repo** (SPA de Vite + React, desplegada en Vercel).
 Los items de la API van en `back-lamelas/docs/features.md`, los del panel en
@@ -16,6 +16,7 @@ Formato de cada item: **qué es**, **ventaja** de hacerlo, **viabilidad**
 |---|---|:---:|---|
 | OG-DINAMICO-01 | Foto de la propiedad al compartir el link | M | pendiente — pedido del cliente |
 | ZONA-FILTRO-01 | Filtro de zona sin duplicados | S | pendiente (depende de datos) |
+| EDIFICIOS-01 | Otras unidades del mismo edificio en la ficha | S | implementado, listo para desplegar (ver guía de la tanda) |
 
 ---
 
@@ -74,3 +75,24 @@ cargados). Opcionalmente se puede deduplicar del lado del cliente como red de
 seguridad, agrupando por versión normalizada (sin acentos, minúsculas).
 
 **Estado.** Pendiente, esperando la normalización de datos.
+
+## EDIFICIOS-01 — otras unidades del mismo edificio
+
+**Qué es.** La ficha muestra el edificio y la unidad debajo del título y, al
+final, la sección "Otras unidades en <edificio>" con las demás unidades
+**disponibles** (las manda la API en `otras_unidades`). Las cards muestran
+"Torre Alem · Unidad 3° B" y el mensaje de WhatsApp de la card incluye la
+unidad, porque dos unidades pueden tener el mismo título. El buscador también
+encuentra por nombre de edificio (lo resuelve la API).
+
+**Ventaja.** Quien mira un departamento ve primero las otras opciones del mismo
+edificio, sin volver al listado.
+
+**Estado.** Implementado, detrás de `back-lamelas` → `EDIFICIOS-01`. Si el sitio
+se publica antes que el backend no rompe: sin esos campos la ficha se ve como
+hasta ahora.
+
+**Deploy.** Los cambios están sin commitear sobre `main`; hay que pasarlos a
+`dev` antes de commitear (`git switch dev` se los lleva, las dos ramas están en
+el mismo commit). Paso a paso en
+`back-lamelas/docs/deploy-tanda-2026-10-05.md` §4.3.

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, Bed, Bath, Maximize, LayoutGrid, Share2, Loader2, ImageOff, CheckCircle2, AlertCircle, Images, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { MapPin, Bed, Bath, Building, Maximize, LayoutGrid, Share2, Loader2, ImageOff, CheckCircle2, AlertCircle, Images, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import Lightbox from '../components/Lightbox';
+import PropertyCard from '../components/PropertyCard';
 import WhatsAppIcon from '../components/WhatsAppIcon';
 import {
   Property,
@@ -15,7 +16,7 @@ import {
   AMOBLADO_LABELS,
 } from '../types';
 import PropertyMap from '../components/PropertyMap';
-import { fetchPropertyBySlug, imageUrl, sortedImages, formatPrice, locationLine, coverUrl } from '../lib/properties';
+import { fetchPropertyBySlug, imageUrl, sortedImages, formatPrice, locationLine, coverUrl, edificioLine } from '../lib/properties';
 import { useSeo } from '../lib/seo';
 import { apiPost, TENANT_SLUG } from '../lib/api';
 
@@ -254,6 +255,12 @@ export default function PropertyDetail() {
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 leading-tight">
               {property.titulo}
             </h1>
+            {edificioLine(property) && (
+              <p className="flex items-center gap-2 text-gray-700 text-lg font-medium mb-1.5">
+                <Building size={20} className="text-brand-primary" />
+                {edificioLine(property)}
+              </p>
+            )}
             {location && (
               <p className="flex items-center gap-2 text-gray-600 text-lg">
                 <MapPin size={20} className="text-brand-primary" />
@@ -522,6 +529,32 @@ export default function PropertyDetail() {
           </div>
 
         </div>
+
+        {/* Otras unidades disponibles del mismo edificio: lo primero que se le
+            ofrece a quien mira esta, antes de mandarlo a buscar al listado. */}
+        {property.edificio && property.otras_unidades.length > 0 && (
+          <section className="mt-12" aria-labelledby="otras-unidades">
+            <div className="mb-6">
+              <h2
+                id="otras-unidades"
+                className="flex items-center gap-2 text-2xl font-bold text-gray-900"
+              >
+                <Building size={24} className="text-brand-primary" />
+                Otras unidades en {property.edificio.nombre}
+              </h2>
+              <p className="mt-1 text-gray-600">
+                {property.otras_unidades.length === 1
+                  ? 'Hay otra unidad disponible en el mismo edificio.'
+                  : `Hay ${property.otras_unidades.length} unidades más disponibles en el mismo edificio.`}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {property.otras_unidades.map(unidad => (
+                <PropertyCard key={unidad.id} property={unidad} />
+              ))}
+            </div>
+          </section>
+        )}
 
       </div>
 

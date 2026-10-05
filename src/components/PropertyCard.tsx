@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Bed, Bath, Maximize, MapPin, ImageOff, Star } from 'lucide-react';
+import { Bed, Bath, Building, Maximize, MapPin, ImageOff, Star } from 'lucide-react';
 import { Property, OPERACION_LABELS, TIPO_LABELS } from '../types';
-import { coverUrl, formatPrice, locationLine, propertySlug } from '../lib/properties';
+import { coverUrl, edificioLine, formatPrice, locationLine, propertySlug } from '../lib/properties';
 import WhatsAppIcon from './WhatsAppIcon';
 
 interface PropertyCardProps {
@@ -16,6 +16,7 @@ interface PropertyCardProps {
 export default function PropertyCard({ property, filtroOperacion }: PropertyCardProps) {
   const cover = coverUrl(property);
   const location = locationLine(property);
+  const edificio = edificioLine(property);
 
   // Precios: para operacion=ambos, `precio` es venta y `precio_alquiler` es
   // alquiler. Según el filtro activo se muestra uno, el otro, o los dos.
@@ -109,6 +110,12 @@ export default function PropertyCard({ property, filtroOperacion }: PropertyCard
           <h4 className="text-base font-medium text-gray-800 line-clamp-2 min-h-[3rem]">
             {property.titulo}
           </h4>
+          {edificio && (
+            <p className="flex items-start gap-1 text-sm font-medium text-gray-600 mt-2">
+              <Building size={16} className="shrink-0 mt-0.5 text-brand-primary" />
+              <span className="line-clamp-1">{edificio}</span>
+            </p>
+          )}
           {location && (
             <p className="flex items-start gap-1 text-sm text-gray-500 mt-2">
               <MapPin size={16} className="shrink-0 mt-0.5" />
@@ -143,7 +150,7 @@ export default function PropertyCard({ property, filtroOperacion }: PropertyCard
             Ver propiedad
           </Link>
           <a
-            href={`https://wa.me/543812310357?text=${encodeURIComponent(`Hola, me interesa la propiedad: ${property.titulo}`)}`}
+            href={`https://wa.me/543812310357?text=${encodeURIComponent(`Hola, me interesa la propiedad: ${property.titulo}${edificio ? ` (${edificio})` : ''}`)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 bg-brand-primary hover:bg-brand-dark text-white py-2.5 rounded-md text-sm font-semibold transition-colors inline-flex items-center justify-center gap-2"

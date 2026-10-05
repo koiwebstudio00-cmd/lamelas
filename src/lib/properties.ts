@@ -89,6 +89,10 @@ interface ApiProperty {
   lat: string | number | null;
   lng: string | number | null;
   linkMaps: string | null;
+  unidad?: string | null;
+  edificio?: { id: string; nombre: string } | null;
+  /** Solo en la ficha: otras unidades disponibles del mismo edificio. */
+  otras_unidades?: ApiProperty[];
   createdAt: string;
   images?: ApiImage[];
 }
@@ -139,6 +143,12 @@ function toProperty(p: ApiProperty): Property {
     lat: num(p.lat),
     lng: num(p.lng),
     link_maps: p.linkMaps ?? null,
+    edificio: p.edificio ? { id: p.edificio.id, nombre: p.edificio.nombre } : null,
+    unidad: p.unidad ?? null,
+    // La API ya manda solo disponibles; el filtro es por si cambia ese criterio.
+    otras_unidades: (p.otras_unidades ?? [])
+      .filter(u => u.estado === 'disponible')
+      .map(toProperty),
     created_at: p.createdAt,
     property_images: (p.images ?? []).map(toImage),
   };
@@ -264,6 +274,15 @@ export function formatPrice(precio: number, moneda: string): string {
     currency: moneda,
     maximumFractionDigits: 0,
   }).format(precio);
+}
+
+/** "Torre Alem · Unidad 3° B", o solo una de las dos partes; null si no hay nada. */
+export function edificioLine(property: Property): string | null {
+  const partes = [
+    property.edificio?.nombre,
+    property.unidad ? `Unidad ${property.unidad}` : null,
+  ].filter(Boolean);
+  return partes.length > 0 ? partes.join(' · ') : null;
 }
 
 /** "Dirección, zona, ciudad" omitiendo los campos vacíos. */

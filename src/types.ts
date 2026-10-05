@@ -73,6 +73,15 @@ export interface Property {
   lat: number | null;
   lng: number | null;
   link_maps: string | null;
+  /** Edificio al que pertenece la unidad (null = propiedad suelta). */
+  edificio: { id: string; nombre: string } | null;
+  /** Cómo se distingue la unidad dentro del edificio ("3° B"). */
+  unidad: string | null;
+  /**
+   * Otras unidades DISPONIBLES del mismo edificio. Solo viene en la ficha
+   * (`fetchPropertyBySlug`); en los listados es siempre [].
+   */
+  otras_unidades: Property[];
   created_at: string;
   property_images: PropertyImage[];
 }
